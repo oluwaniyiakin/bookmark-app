@@ -1,23 +1,56 @@
+// ---------------------------
+// Datasource Configuration
+// ---------------------------
+// This section defines the database connection.
+// We are using PostgreSQL as the database provider.
+// The DATABASE_URL is stored in the .env file for security.
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// ---------------------------
+// Prisma Client Generator
+// ---------------------------
+// Generates the Prisma Client which is used to interact
+// with the database in our application code.
 generator client {
   provider = "prisma-client-js"
 }
 
+// ---------------------------
+// User Model
+// ---------------------------
+// Represents a registered user in the system.
+// Each user can have multiple bookmarks.
+// We’re storing the GitHub ID for authentication purposes.
 model User {
-  id        Int        @id @default(autoincrement())
-  githubId  String     @unique
-  bookmarks Bookmark[]
+  id          Int        @id @default(autoincrement()) // Primary key
+  githubId    String     @unique                      // Unique GitHub ID for OAuth login
+  email       String?    @unique                      // Optional email address (can be null)
+  username    String?                                  // Optional display username
+  createdAt   DateTime   @default(now())              // Timestamp when user was created
+  updatedAt   DateTime   @updatedAt                   // Auto-updates when user record changes
+  bookmarks   Bookmark[]                             // One-to-many relation (User -> Bookmark)
+
+  @@map("users") // Maps to "users" table in database
 }
 
+// ---------------------------
+// Bookmark Model
+// ---------------------------
+// Represents a saved bookmark for a user.
+// Each bookmark belongs to exactly one user.
 model Bookmark {
-  id        Int      @id @default(autoincrement())
-  title     String
-  url       String
-  createdAt DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())  // Primary key
+  title       String                                   // Bookmark title
+  url         String                                   // The actual URL
+  description String?                                  // Optional description of the bookmark
+  createdAt   DateTime @default(now())                // Creation timestamp
+  updatedAt   DateTime @updatedAt                     // Auto-updates when bookmark changes
+  userId      Int                                     // Foreign key referencing User
+  user        User     @relation(fields: [userId], references: [id]) // Relation setup
+
+  @@index([userId]) // Index for faster lookups by userId
+  @@map("bookmarks") // Maps to "bookmarks" table in database
 }

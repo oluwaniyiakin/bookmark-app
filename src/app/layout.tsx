@@ -1,7 +1,10 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import { SessionProvider } from "next-auth/react";
 
 // Load fonts
 const geistSans = Geist({
@@ -16,7 +19,7 @@ const geistMono = Geist_Mono({
 
 // App metadata
 export const metadata: Metadata = {
-  title: "Bookmark App",
+  title: "DevBookmark",
   description: "Save and organize your dev bookmarks",
 };
 
@@ -28,8 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 min-h-screen`}
       >
-        <Navbar />
-        <main className="p-6">{children}</main>
+        {/* Wrap everything in SessionProvider */}
+        <SessionProvider>
+          <Navbar />
+          <main className="p-6">{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );
